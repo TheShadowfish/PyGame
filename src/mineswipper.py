@@ -83,12 +83,14 @@ while True:
         #     segments = [snake.copy()]
 
         # Столкновение с границами и телом змейки
-        snake_collision = pg.Rect.collidelist(snake, segments[:-1]) != -1
-        if snake.left < 0 or snake.right > WINDOW or snake.top < 0 or snake.bottom > WINDOW or snake_collision:
-            snake.center, food.center = get_random_position(), get_random_position()
-            length, snake_dir = 1, (0, 0)
-            time_step = TIME_STEP
-            segments = [snake.copy()]
+        # snake_collision = pg.Rect.collidelist(snake, segments[:-1]) != -1
+        # if snake.left < 0 or snake.right > WINDOW or snake.top < 0 or snake.bottom > WINDOW or snake_collision:
+        #     snake.center, food.center = get_random_position(), get_random_position()
+        #     length, snake_dir = 1, (0, 0)
+        #     time_step = TIME_STEP
+        #     segments = [snake.copy()]
+
+        snake_dir = (0,0)
 
         # gameScreen.fill((155, 188, 15))
         gameScreen.fill((89, 166, 224))
