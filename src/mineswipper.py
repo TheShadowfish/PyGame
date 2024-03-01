@@ -1,5 +1,7 @@
 import pygame as pg
 from random import randrange
+from ms import Mines
+
 
 # Константы
 WINDOW = 900
@@ -7,6 +9,10 @@ FPS = 60
 TILE_SIZE = 50
 RANGE = (TILE_SIZE // 2, WINDOW - TILE_SIZE // 2, TILE_SIZE)
 TIME_STEP = 100
+
+my_ms = Mines(WINDOW//TILE_SIZE, WINDOW//TILE_SIZE, WINDOW//TILE_SIZE)
+# # #
+print(my_ms)
 
 # Функция для определения координат (X:Y) случайной позиции на игровом поле
 get_random_position = lambda: [randrange(*RANGE), randrange(*RANGE)]
