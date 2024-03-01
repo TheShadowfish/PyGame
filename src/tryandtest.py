@@ -1,20 +1,37 @@
 import pygame as pg
 # from pygame.locals import *
 
+# здесь подключаются модули
+import pygame
+import sys
+
+# здесь определяются константы,
+# классы и функции
+FPS = 60
+
+# здесь происходит инициация,
+# создание объектов
+pygame.init()
+pygame.display.set_mode((600, 400))
+clock = pygame.time.Clock()
+
+# если надо до цикла отобразить
+# какие-то объекты, обновляем экран
+pygame.display.update()
 
 
-pg.display.set_mode((600, 400))
-
-
+print("https://younglinux.info/pygame/framework")
+# главный цикл
 while True:
-    # Цикл обработки событий
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            exit()
-        # # print(pg.QUIT)
-        # print(event)
-        # print(event.type)
-            # pg.quit()
+
+    # задержка
+    clock.tick(FPS)
+
+    # цикл обработки событий
+    for event in pygame.event.get():
+        pg.display.set_caption(str(event))
+        if event.type == pygame.QUIT:
+            sys.exit()
 
         # Обработка нажатий WASD
         # if event.type == pg.KEYDOWN:
@@ -26,7 +43,6 @@ while True:
         #         snake_dir = (-TILE_SIZE, 0)
         #     if event.key == pg.K_d:
         #         snake_dir = (TILE_SIZE, 0)
-
         if event.type == pg.MOUSEBUTTONDOWN:
             w_mouse = pg.MOUSEBUTTONDOWN.__pos__()
             w_mouse.real
@@ -34,16 +50,12 @@ while True:
             # print(event)
             # print(event.type)
 
-        print("https://younglinux.info/pygame/framework")
-#
-#         #<Event(1025-MouseButtonDown {'pos': (584, 17), 'button': 1, 'touch': False, 'window': None})>
-# 1025
-# <Event(1026-MouseButtonUp {'pos': (584, 17), 'button': 1, 'touch': False, 'window': None})>
-        # < Event(1024 - MouseMotion
-        # {'pos': (522, 15), 'rel': (8, -7), 'buttons': (0, 0, 0), 'touch': False, 'window': None}) >
-        # 1024
-        # < Event(1024 - MouseMotion
-        # {'pos': (530, 9), 'rel': (8, -6), 'buttons': (0, 0, 0), 'touch': False, 'window': None}) >
-        # 1024
-        # < Event(1024 - MouseMotion
-        # {'pos': (535, 5), 'rel': (5, -4), 'buttons': (0, 0, 0), 'touch': False, 'window': None}) >
+    # --------
+    # изменение объектов
+    # --------
+
+    # обновление экрана
+    pygame.display.update()
+
+
+
