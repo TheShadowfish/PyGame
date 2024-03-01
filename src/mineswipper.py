@@ -10,7 +10,7 @@ TILE_SIZE = 50
 RANGE = (TILE_SIZE // 2, WINDOW - TILE_SIZE // 2, TILE_SIZE)
 TIME_STEP = 100
 
-my_ms = Mines(WINDOW//TILE_SIZE, WINDOW//TILE_SIZE, WINDOW//TILE_SIZE)
+my_ms = Mines(WINDOW//TILE_SIZE, WINDOW//TILE_SIZE, WINDOW//TILE_SIZE*4)
 # # #
 print(my_ms)
 
@@ -19,16 +19,22 @@ get_random_position = lambda: [randrange(*RANGE), randrange(*RANGE)]
 
 
 # Инициализация объектов
-gameScreen = pg.display.set_mode([WINDOW] * 2)
+gameScreen = pg.display.set_mode([WINDOW] * 2, flags=pg.DOUBLEBUF)
 
 clock = pg.time.Clock()
 
 pg.font.init()
-f1 = pg.font.SysFont('arial', TILE_SIZE)
+f1 = pg.font.SysFont('arial', TILE_SIZE-5)
 # f2 = pg.font.Font(None, TILE_SIZE)
 
 
+"""
+Функция flip() решает проблему иным способом. Она дает выигрыш, если в set_mod() были переданы определенные флаги. Например,
 
+pygame.display.set_mode(flags=pygame.FULLSCREEN |
+                              pygame.OPENGL |
+                              pygame.DOUBLEBUF)
+"""
 
 # Параметры змейки
 snake = pg.rect.Rect([0, 0, TILE_SIZE - 2, TILE_SIZE - 2])
@@ -36,6 +42,9 @@ snake.center = get_random_position()
 length = 1
 segments = [snake.copy()]
 snake_dir = (0,0)
+
+
+
 
 # Параметры объектов еды
 food = snake.copy()
@@ -96,23 +105,51 @@ while True:
         #     time_step = TIME_STEP
         #     segments = [snake.copy()]
 
-        snake_dir = (0,0)
 
-        # gameScreen.fill((155, 188, 15))
+
+        # отрисовать поле
         gameScreen.fill((89, 166, 224))
-        [pg.draw.rect(gameScreen, (10, 143, 239), segment) for segment in segments] #120, 149, 12
-        #10, 143, 239      13 101 172
 
-        # Рисуем объект еды
-        pg.draw.rect(gameScreen, (13, 101, 172), food)
+        for pt in my_ms:
+            w, h, color, sign = pt
+            point = pg.rect.Rect([0, 0, TILE_SIZE - 2, TILE_SIZE - 2])  # snake.copy()
+            point.center = (w * TILE_SIZE + TILE_SIZE // 2, h * TILE_SIZE + TILE_SIZE // 2)
 
-        text1 = f1.render(str(time_step), True,
-                          (13, 101, 172))
-        text2 = f1.render(str(length), False,
-                          (10, 143, 239))
 
-        gameScreen.blit(text1, (WINDOW - (TILE_SIZE<<1), 0))
-        gameScreen.blit(text2, (WINDOW - (TILE_SIZE<<1), TILE_SIZE))
+            if sign == 0 or sign == 9:
+                pg.draw.rect(gameScreen, color, point)
+            else:
+                # print(sign)
+                pg.draw.rect(gameScreen, ((10, 143, 239)), point)
+
+
+
+                # gameScreen.blit(str(sign), (WINDOW - (TILE_SIZE << 1), 0))
+                # gameScreen.blit(text2, (WINDOW - (TILE_SIZE << 1), TILE_SIZE))
+                text_sign = f1.render(str(sign), True, color)
+                place = text_sign.get_rect(center=point.center)
+                gameScreen.blit(text_sign, place)
+
+
+
+
+        # snake_dir = (0, 0)
+        #
+        # # gameScreen.fill((155, 188, 15))
+        # gameScreen.fill((89, 166, 224))
+        # [pg.draw.rect(gameScreen, (10, 143, 239), segment) for segment in segments]  # 120, 149, 12
+        # #10, 143, 239      13 101 172
+
+        # # Рисуем объект еды
+        # pg.draw.rect(gameScreen, (13, 101, 172), food)
+        #
+        # text1 = f1.render(str(time_step), True,
+        #                   (13, 101, 172))
+        # text2 = f1.render(str(length), False,
+        #                   (10, 143, 239))
+        #
+        # gameScreen.blit(text1, (WINDOW - (TILE_SIZE<<1), 0))
+        # gameScreen.blit(text2, (WINDOW - (TILE_SIZE<<1), TILE_SIZE))
         # gameScreen.display.update()
 
         pg.display.flip()
