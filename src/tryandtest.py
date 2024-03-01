@@ -33,6 +33,8 @@ while True:
             print(w_mouse.real)
             # print(event)
             # print(event.type)
+
+        print("https://younglinux.info/pygame/framework")
 #
 #         #<Event(1025-MouseButtonDown {'pos': (584, 17), 'button': 1, 'touch': False, 'window': None})>
 # 1025
