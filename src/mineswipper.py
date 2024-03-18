@@ -91,7 +91,8 @@ while True:
             w: int = mouse_pos[0] // TILE_SIZE
             h: int = mouse_pos[1] // TILE_SIZE
 
-            my_ms.unhide(w, h)
+            # my_ms.un_hide(w, h)
+            my_ms.recursive_un_hide(w, h)
 
             print(f"x, y = {w}, {h}")
 
@@ -109,29 +110,6 @@ while True:
     if time_now - time > time_step:
         time = time_now
 
-        # snake.move_ip(snake_dir)
-        # segments.append(snake.copy())
-        # segments = segments[-length:]
-        #
-        # # Поедание
-        # if snake.center == food.center:
-        #     food.center = get_random_position()
-        #     length += 1
-        #     time_step -=1
-
-        # # Столкновение с границами
-        # if snake.left < 0 or snake.right > WINDOW or snake.top < 0 or snake.bottom > WINDOW:
-        #     snake.center, food.center = get_random_position(), get_random_position()
-        #     length, snake_dir = 1, (0, 0)
-        #     segments = [snake.copy()]
-
-        # Столкновение с границами и телом змейки
-        # snake_collision = pg.Rect.collidelist(snake, segments[:-1]) != -1
-        # if snake.left < 0 or snake.right > WINDOW or snake.top < 0 or snake.bottom > WINDOW or snake_collision:
-        #     snake.center, food.center = get_random_position(), get_random_position()
-        #     length, snake_dir = 1, (0, 0)
-        #     time_step = TIME_STEP
-        #     segments = [snake.copy()]
 
 
 
@@ -146,9 +124,10 @@ while True:
             if hide:
                 pg.draw.rect(gameScreen, color, point)
 
-
-            if sign == 0 or sign == 9 or hide:
+            if sign == 9 or hide:
                 pg.draw.rect(gameScreen, color, point)
+            elif sign == 0:
+                pg.draw.rect(gameScreen, ((10, 143, 239)), point)
             else:
                 # print(sign)
                 pg.draw.rect(gameScreen, ((10, 143, 239)), point)

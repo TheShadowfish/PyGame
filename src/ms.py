@@ -93,18 +93,62 @@ class Mines:
         if h2 > self._height: h2 = self._height
 
         count = 0
+        count2 = 0
+
         field = 0
         for i in range(w0, w2):
             for j in range(h0, h2):
                 if self._field[i][j].sign == 9:
-                    count += 1
-                field += 1
+                    count2 += 1
+                # field += 1
         # print(f"field(9) {field}")
+
+        for i in self.get_points_list(w, h):
+            if self._field[i[0]][i[1]] == 9:
+                count += 1
+
+        assert count == count2
+
         return count
 
+    def get_points_list(self, w, h):
+        """
+        Возвращает список сопутствующих ячеек
+        :param w:
+        :param h:
+        :return:
+        """
+        w0 = w - 1
+        w2 = w + 2
+        h0 = h - 1
+        h2 = h + 2
+        if w0 < 0: w0 = 0
+        if h0 < 0: h0 = 0
+        if w2 > self._width: w2 = self._width
+        if h2 > self._height: h2 = self._height
 
-    def unhide(self,w,h):
+        point_list = []
+
+        # count = 0
+        field = 0
+        for i in range(w0, w2):
+            for j in range(h0, h2):
+                if i != w and j != h:
+                    point_list.append((i, j))
+                # count += 1
+                # field += 1
+        # print(f"field(9) {field}")
+        return point_list
+
+    def un_hide(self, w, h):
         self._field[w][h].hide = False
+
+    def recursive_un_hide(self, w, h):
+        self._field[w][h].hide = False
+        if self._field[w][h].sign == 0:
+            for pts in self.get_points_list(w, h):
+                self.recursive_un_hide(pts[0], pts[1])
+
 
     def __str__(self):
         field = ''
