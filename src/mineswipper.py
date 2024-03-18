@@ -37,18 +37,18 @@ pygame.display.set_mode(flags=pygame.FULLSCREEN |
 """
 
 # Параметры змейки
-snake = pg.rect.Rect([0, 0, TILE_SIZE - 2, TILE_SIZE - 2])
-snake.center = get_random_position()
-length = 1
-segments = [snake.copy()]
-snake_dir = (0,0)
+# snake = pg.rect.Rect([0, 0, TILE_SIZE - 2, TILE_SIZE - 2])
+# snake.center = get_random_position()
+# length = 1
+# segments = [snake.copy()]
+# snake_dir = (0,0)
 
 
 
 
 # Параметры объектов еды
-food = snake.copy()
-food.center = get_random_position()
+# food = snake.copy()
+# food.center = get_random_position()
 
 
 time = 0
@@ -62,6 +62,8 @@ while True:
 
     # Цикл обработки событий
     for event in pg.event.get():
+        pg.display.set_caption(str(event))
+
         if event.type == pg.QUIT:
             exit()
 
@@ -76,20 +78,46 @@ while True:
             if event.key == pg.K_d:
                 snake_dir = (TILE_SIZE, 0)
 
+        if event.type == pg.MOUSEBUTTONDOWN:
+            mouse_pos = event.dict['pos']
+            mouse_btn = event.dict['button']
+
+            w_mouse = pg.MOUSEBUTTONDOWN.__pos__()
+            w_mouse.real
+
+            # w_mouse.__pos__()
+            print(f"{mouse_pos[0]},{mouse_pos[1]} button= {mouse_btn}")
+
+            w: int = mouse_pos[0] // TILE_SIZE
+            h: int = mouse_pos[1] // TILE_SIZE
+
+            my_ms.unhide(w, h)
+
+            print(f"x, y = {w}, {h}")
+
+
+            # WINDOW = 900
+            # FPS = 60
+            # TILE_SIZE = 50
+            # RANGE = (TILE_SIZE // 2, WINDOW - TILE_SIZE // 2, TILE_SIZE)
+            # TIME_STEP = 100
+            #
+            # my_ms = Mines(WINDOW // TILE_SIZE, WINDOW // TILE_SIZE, WINDOW // TILE_SIZE * 4)
+
     # Управляем змейкой
     time_now = pg.time.get_ticks()
     if time_now - time > time_step:
         time = time_now
 
-        snake.move_ip(snake_dir)
-        segments.append(snake.copy())
-        segments = segments[-length:]
-
-        # Поедание
-        if snake.center == food.center:
-            food.center = get_random_position()
-            length += 1
-            time_step -=1
+        # snake.move_ip(snake_dir)
+        # segments.append(snake.copy())
+        # segments = segments[-length:]
+        #
+        # # Поедание
+        # if snake.center == food.center:
+        #     food.center = get_random_position()
+        #     length += 1
+        #     time_step -=1
 
         # # Столкновение с границами
         # if snake.left < 0 or snake.right > WINDOW or snake.top < 0 or snake.bottom > WINDOW:
@@ -111,19 +139,19 @@ while True:
         gameScreen.fill((89, 166, 224))
 
         for pt in my_ms:
-            w, h, color, sign = pt
+            w, h, color, sign, hide = pt
             point = pg.rect.Rect([0, 0, TILE_SIZE - 2, TILE_SIZE - 2])  # snake.copy()
             point.center = (w * TILE_SIZE + TILE_SIZE // 2, h * TILE_SIZE + TILE_SIZE // 2)
 
+            if hide:
+                pg.draw.rect(gameScreen, color, point)
 
-            if sign == 0 or sign == 9:
+
+            if sign == 0 or sign == 9 or hide:
                 pg.draw.rect(gameScreen, color, point)
             else:
                 # print(sign)
                 pg.draw.rect(gameScreen, ((10, 143, 239)), point)
-
-
-
                 # gameScreen.blit(str(sign), (WINDOW - (TILE_SIZE << 1), 0))
                 # gameScreen.blit(text2, (WINDOW - (TILE_SIZE << 1), TILE_SIZE))
                 text_sign = f1.render(str(sign), True, color)

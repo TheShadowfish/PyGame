@@ -25,8 +25,12 @@ class Point:
     def color(self):
         # Покраска под число(__sign)
         # 89, 166, 224
-        k = self.sign
-        self.pt_color = (28 * k, 255 - 15 * k, 255 - 24 * k)
+
+        if self.hide:
+            self.pt_color = (28 * 0, 255 - 15 * 0, 255 - 24 * 0)
+        else:
+            k = self.sign
+            self.pt_color = (28 * k, 255 - 15 * k, 255 - 24 * k)
         return self.pt_color
 
     @color.setter
@@ -37,6 +41,9 @@ class Point:
 class Mines:
 
     def __init__(self, height, width, mines):
+        """
+        my_ms = Mines(WINDOW//TILE_SIZE, WINDOW//TILE_SIZE, WINDOW//TILE_SIZE*4)
+        """
         self._height = height
         self._width = width
         self.mines = mines
@@ -70,6 +77,12 @@ class Mines:
                     self._field[w][h].sign = self.get_sign(w, h)
 
     def get_sign(self, w, h):
+        """
+        Установливает число ячейки, равно числу мин вокруг поля.
+        :param w:
+        :param h:
+        :return:
+        """
         w0 = w - 1
         w2 = w + 2
         h0 = h - 1
@@ -88,6 +101,10 @@ class Mines:
                 field += 1
         # print(f"field(9) {field}")
         return count
+
+
+    def unhide(self,w,h):
+        self._field[w][h].hide = False
 
     def __str__(self):
         field = ''
@@ -112,7 +129,7 @@ class Mines:
             w = index % self._width
             h = index // self._width
 
-            return w, h, self._field[w][h].color, self._field[w][h].sign
+            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide
         else:
             raise IndexError(f"Index out of a range (0 <= {index} < {self._height * self._width}")
 
@@ -126,7 +143,7 @@ class Mines:
             w = number % self._width
             h = number // self._width
 
-            return w, h, self._field[w][h].color, self._field[w][h].sign
+            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide
         else:
             raise StopIteration
 
