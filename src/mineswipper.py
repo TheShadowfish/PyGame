@@ -7,15 +7,16 @@ from ms import Mines
 WINDOW = 900
 FPS = 60
 TILE_SIZE = 50
-RANGE = (TILE_SIZE // 2, WINDOW - TILE_SIZE // 2, TILE_SIZE)
+# RANGE = (TILE_SIZE // 2, WINDOW - TILE_SIZE // 2, TILE_SIZE)
 TIME_STEP = 100
 
-my_ms = Mines(WINDOW//TILE_SIZE, WINDOW//TILE_SIZE, WINDOW//TILE_SIZE*4)
+mines = (((WINDOW//TILE_SIZE)**2))//10 * 2 #20%
+my_ms = Mines(WINDOW//TILE_SIZE, WINDOW//TILE_SIZE, mines)
 # # #
 print(my_ms)
-
-# Функция для определения координат (X:Y) случайной позиции на игровом поле
-get_random_position = lambda: [randrange(*RANGE), randrange(*RANGE)]
+#
+# # Функция для определения координат (X:Y) случайной позиции на игровом поле
+# get_random_position = lambda: [randrange(*RANGE), randrange(*RANGE)]
 
 
 # Инициализация объектов
@@ -91,8 +92,15 @@ while True:
             w: int = mouse_pos[0] // TILE_SIZE
             h: int = mouse_pos[1] // TILE_SIZE
 
-            # my_ms.un_hide(w, h)
-            my_ms.recursive_un_hide(w, h)
+
+            if mouse_btn == 3:
+                my_ms.set_flag(w, h)
+            elif mouse_btn == 2:
+                my_ms.open_near(w, h)
+                print(f"OPEN_NEAR!!")
+            else:
+                # my_ms.un_hide(w, h)
+                my_ms.recursive_un_hide(w, h)
 
             print(f"x, y = {w}, {h}")
 
@@ -117,15 +125,39 @@ while True:
         gameScreen.fill((89, 166, 224))
 
         for pt in my_ms:
-            w, h, color, sign, hide = pt
+
+            w, h, color, sign, hide, flag = pt
             point = pg.rect.Rect([0, 0, TILE_SIZE - 2, TILE_SIZE - 2])  # snake.copy()
             point.center = (w * TILE_SIZE + TILE_SIZE // 2, h * TILE_SIZE + TILE_SIZE // 2)
 
-            if hide:
-                pg.draw.rect(gameScreen, color, point)
+            # if hide:
+            #     pg.draw.rect(gameScreen, color, point)
+            #     if flag == 'Mine':
+            #         text_sign = f1.render('⊗', True, "red") #∆
+            #         print(f"flag = Mine {flag}")
+            #     elif flag == 'Question':
+            #         text_sign = f1.render('?', True, "blue")  # ∆
+            #         print(f"flag = Question {flag}")
+            #     else:
+            #         text_sign = f1.render(' ', True, "white")  # ∆
+            #         print(f"flag = None {flag}")
+            #
+            #
+            #     place = text_sign.get_rect(center=point.center)
+            #     gameScreen.blit(text_sign, place)
+
 
             if sign == 9 or hide:
                 pg.draw.rect(gameScreen, color, point)
+                if hide and flag == 'Mine':
+                    text_sign = f1.render('∆', True, "red")  # ∆ ⊗
+                    place = text_sign.get_rect(center=point.center)
+                    gameScreen.blit(text_sign, place)
+                elif hide and flag == 'Question':
+                    text_sign = f1.render('?', True, "blue")  # ∆
+                    place = text_sign.get_rect(center=point.center)
+                    gameScreen.blit(text_sign, place)
+
             elif sign == 0:
                 pg.draw.rect(gameScreen, ((10, 143, 239)), point)
             else:

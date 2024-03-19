@@ -14,11 +14,13 @@ class Point:
               (200, 200, 200),
               (0, 0, 0)]
 
-    __slots__ = ('hide', 'sign', 'pt_color', 'comment')
+    __slots__ = ('hide', 'sign', 'flag', 'pt_color')
+    flags = ('None','Mine','Question')
 
-    def __init__(self, hide=True, sign=0):
+    def __init__(self, hide=True, sign=0, flag=0):
         self.hide = hide
         self.sign = sign
+        self.flag = self.flags[0]
         # self.color = 'standart
 
     @property
@@ -36,6 +38,21 @@ class Point:
     @color.setter
     def color(self, color):
         self.pt_color = color
+
+    # @property
+    # def flag(self):
+    #     if not self.hide:
+    #         self.flag = self.flags[0]
+    #     return self.flag
+
+
+    def check_flag(self, no_question: bool = False):
+        if self.flag == self.flags[0]:
+            self.flag = self.flags[1]
+        elif self.flag == self.flags[1] and not no_question:
+            self.flag = self.flags[2]
+        else:
+            self.flag = self.flags[0]
 
 
 class Mines:
@@ -99,13 +116,19 @@ class Mines:
         for i in range(w0, w2):
             for j in range(h0, h2):
                 if self._field[i][j].sign == 9:
+                    # print(f"field(i,j) ({i},{j}) sign= {self._field[i][j].sign}")
                     count2 += 1
                 # field += 1
         # print(f"field(9) {field}")
 
         for i in self.get_points_list(w, h):
-            if self._field[i[0]][i[1]] == 9:
+            # print(f"{i}, {[str(iel) for iel in i]} {self._field[i[0]][i[1]].sign}")
+            if self._field[i[0]][i[1]].sign == 9:
+                # print(f"field(w, h) ({i[0]},{i[1]}) sign= {self._field[i[0]][i[1]].sign}")
                 count += 1
+
+        # print(f"count= {count}, count2= {count2}")
+        # input("See///")
 
         assert count == count2
 
@@ -133,7 +156,7 @@ class Mines:
         field = 0
         for i in range(w0, w2):
             for j in range(h0, h2):
-                if i != w and j != h:
+                if not(i == w and j == h):
                     point_list.append((i, j))
                 # count += 1
                 # field += 1
@@ -143,11 +166,59 @@ class Mines:
     def un_hide(self, w, h):
         self._field[w][h].hide = False
 
-    def recursive_un_hide(self, w, h):
-        self._field[w][h].hide = False
-        if self._field[w][h].sign == 0:
-            for pts in self.get_points_list(w, h):
-                self.recursive_un_hide(pts[0], pts[1])
+    def recursive_un_hide(self, w, h, depth = 0):
+        if self._field[w][h].hide:
+            self._field[w][h].hide = False
+            if self._field[w][h].sign == 0:
+                depth += 1
+                for pts in self.get_points_list(w, h):
+                    print(f"depth= {depth}, w,h= {w},{h}")
+                    self.recursive_un_hide(pts[0], pts[1], depth)
+
+
+    def open_near(self, w, h):
+        if self._field[w][h].hide != False:
+            print("Hide can not!")
+            return
+
+        sign_checked = 0
+        for pts in self.get_points_list(w, h):
+            if self._field[pts[0]][pts[1]].flag != Point.flags[0] and self._field[pts[0]][pts[1]].hide:
+                sign_checked += 1
+            else:
+                if self._field[w][h].sign > sign_checked:
+                    print(f"It is SUICIDE? NO WAY! Not on my shift!!! {sign_checked}")
+                    return
+
+
+        checked = [ch for ch in self.get_points_list(w, h) if self._field[ch[0]][ch[1]].flag != 'None' and self._field[ch[0]][ch[1]].hide]
+
+
+        for pts in self.get_points_list(w, h):
+            if self._field[pts[0]][pts[1]].flag == Point.flags[0] and self._field[pts[0]][pts[1]].sign == 9:
+                self._field[pts[0]][pts[1]].hide = False
+                print("CA-BOOM!")
+                print("CA-BOoOOoOOoM!!!")
+                print("CA-BOOoOoOOOOOOoOOOoOoOM!!!!!!!!!!")
+                print(f"██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░███████╗██╗░░██╗██████╗░██╗░░░░░░█████╗░██████╗░███████╗██████╗░\n"
+                      f"╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░██╔════╝╚██╗██╔╝██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔════╝██╔══██╗\n"
+                      f"░╚████╔╝░██║░░██║██║░░░██║░░░░░░█████╗░░░╚███╔╝░██████╔╝██║░░░░░██║░░██║██║░░██║█████╗░░██║░░██║\n"
+                      f"░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░██╔══╝░░░██╔██╗░██╔═══╝░██║░░░░░██║░░██║██║░░██║██╔══╝░░██║░░██║\n"
+                      f"░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░███████╗██╔╝╚██╗██║░░░░░███████╗╚█████╔╝██████╔╝███████╗██████╔╝\n"
+                      f"░░░╚═╝░░░░╚════╝░░╚═════╝░░░░░░░╚══════╝╚═╝░░╚═╝╚═╝░░░░░╚══════╝░╚════╝░╚═════╝░╚══════╝╚═════╝░"
+                      )
+            elif self._field[pts[0]][pts[1]].flag == Point.flags[0]:
+
+                if self._field[pts[0]][pts[1]].sign == 0:
+                    self.recursive_un_hide(pts[0],pts[1], 0)
+
+                self._field[pts[0]][pts[1]].hide = False
+
+    def set_flag(self, w, h):
+        # Прямо дофига очевидно, что делает. На самом деле просто флаг переключает.
+        # self._field[w][h].flag смещается по tuple флагов, переключение на следующее или нулевое значение
+        #
+        self._field[w][h].check_flag(False)
 
 
     def __str__(self):
@@ -173,7 +244,7 @@ class Mines:
             w = index % self._width
             h = index // self._width
 
-            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide
+            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
         else:
             raise IndexError(f"Index out of a range (0 <= {index} < {self._height * self._width}")
 
@@ -187,7 +258,9 @@ class Mines:
             w = number % self._width
             h = number // self._width
 
-            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide
+            # return w, h, self._field[w][h]
+
+            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
         else:
             raise StopIteration
 
