@@ -37,7 +37,7 @@ pygame.display.set_mode(flags=pygame.FULLSCREEN |
 """
 
 
-
+global_time = 0;
 
 # Параметры объектов еды
 # food = snake.copy()
@@ -52,7 +52,9 @@ time_step = TIME_STEP
 while True:
     # Частота обновления экрана
     clock.tick(FPS)
-    pg.display.set_caption(f"Mineswiper: {str()}")
+    mines = [pt[2] for pt in my_ms if pt[2].sign == 9]
+    # pg.display.set_caption(f"WINNER!!! Mineswiper: timer: {str(global_time)}, mines: {len(mines)}")
+    pg.display.set_caption(f"Minesweeper: timer: {str(global_time)}, mines: {len(mines)}")
 
     # Цикл обработки событий
     for event in pg.event.get():
@@ -67,11 +69,10 @@ while True:
 
             w_mouse = pg.MOUSEBUTTONDOWN.__pos__()
 
-            print(f"{mouse_pos[0]},{mouse_pos[1]} button= {mouse_btn}")
+            # print(f"{mouse_pos[0]},{mouse_pos[1]} button= {mouse_btn}")
 
             w: int = mouse_pos[0] // TILE_SIZE
             h: int = mouse_pos[1] // TILE_SIZE
-
 
             if my_ms.boom:
                 print("CA-BOOM!")
@@ -86,19 +87,21 @@ while True:
                 # self.boom = True
             else:
 
-
                 if mouse_btn == 3:
                     my_ms.set_flag(w, h)
                 elif mouse_btn == 2:
                     my_ms.open_near(w, h)
                     print(f"OPEN_NEAR!!")
                 else:
-                # my_ms.un_hide(w, h)
+                    # my_ms.un_hide(w, h)
                     my_ms.recursive_un_hide(w, h)
 
+            if mouse_btn != 3 and Mines.check_end_game(my_ms):
+                print("U ARE WWWWIN!")
+                mines = [pt[2] for pt in my_ms if pt[2].sign == 9]
+                pg.display.set_caption(f"WINNER!!! Minesweeper: timer: {str(global_time)}, mines: {len(mines)}")
 
-
-            print(f"x, y = {w}, {h}")
+            # print(f"x, y = {w}, {h}")
 
 
             # WINDOW = 900
@@ -113,10 +116,8 @@ while True:
     time_now = pg.time.get_ticks()
     if time_now - time > time_step:
         time = time_now
-        if not my_ms.boom:
-            global_time += 1
-
-
+        # if not my_ms.boom and Mines.check_end_game(my_ms):
+        global_time += 1
 
 
         # отрисовать поле
@@ -140,7 +141,7 @@ while True:
                     place = text_sign.get_rect(center=point.center)
                     gameScreen.blit(text_sign, place)
                 elif my_ms.boom:
-                    if the_point.sign == 9
+                    if the_point.sign == 9:
                         pg.draw.rect(gameScreen, "black", point)
 
             elif the_point.sign == 0:
