@@ -14,13 +14,14 @@ class Point:
               (200, 200, 200),
               (0, 0, 0)]
 
-    __slots__ = ('hide', 'sign', 'flag', 'pt_color')
-    flags = ('None','Mine','Question')
+    __slots__ = ('hide', 'sign', 'flag', 'question', 'pt_color')
+    # flags = ('None','Mine','Question')
 
     def __init__(self, hide=True, sign=0, flag=0):
         self.hide = hide
         self.sign = sign
-        self.flag = self.flags[0]
+        self.flag = False
+        self.question = False
         # self.color = 'standart
 
     @property
@@ -47,12 +48,14 @@ class Point:
 
 
     def check_flag(self, no_question: bool = False):
-        if self.flag == self.flags[0]:
-            self.flag = self.flags[1]
-        elif self.flag == self.flags[1] and not no_question:
-            self.flag = self.flags[2]
+        if not self.flag and not self.question:
+            self.flag = True
+        elif self.flag and not no_question:
+            self.flag = False
+            self.question = True
         else:
-            self.flag = self.flags[0]
+            self.flag = False
+            self.question = False
 
 
 class Mines:
@@ -92,6 +95,10 @@ class Mines:
             for w in range(0, self._width):
                 if self._field[w][h].sign != 9:
                     self._field[w][h].sign = self.get_sign(w, h)
+
+
+        self.boom = False
+        self.boom_pts = None
 
     def get_sign(self, w, h):
         """
@@ -163,12 +170,15 @@ class Mines:
         # print(f"field(9) {field}")
         return point_list
 
-    def un_hide(self, w, h):
-        self._field[w][h].hide = False
+    # def un_hide(self, w, h):
+    #     self._field[w][h].hide = False
 
     def recursive_un_hide(self, w, h, depth = 0):
         if self._field[w][h].hide:
             self._field[w][h].hide = False
+            if self._field[w][h].sign == 9:
+                self.boom = True
+                self.boom_pts = (w, h)
             if self._field[w][h].sign == 0:
                 depth += 1
                 for pts in self.get_points_list(w, h):
@@ -181,45 +191,49 @@ class Mines:
             print("Hide can not!")
             return
 
+        # не даст открыть все поля, если не отмечено нужное количество мин
         sign_checked = 0
+
+        # если мины отмечены, но неправильно - отмечает, что взрыв состоится
+        # boom = False
+
         for pts in self.get_points_list(w, h):
-            if self._field[pts[0]][pts[1]].flag != Point.flags[0] and self._field[pts[0]][pts[1]].hide:
-                sign_checked += 1
+            the_point = self._field[pts[0]][pts[1]]
+            if (the_point.flag or the_point.question) and the_point.hide:
+               sign_checked += 1
+            if not the_point.flag and not the_point.question and the_point.sign == 9:
+                self.boom = True
+                self.boom_pts = (pts[0], pts[1])
+        else:
+            # если закрыто меньше мин, чем предусмотрено - ничего не делаем
+            if self._field[w][h].sign > sign_checked:
+                print(f"It is SUICIDE? NO WAY! Not on my shift!!! {sign_checked}")
+                return
             else:
-                if self._field[w][h].sign > sign_checked:
-                    print(f"It is SUICIDE? NO WAY! Not on my shift!!! {sign_checked}")
-                    return
+                for pts in self.get_points_list(w, h):
+                    the_point = self._field[pts[0]][pts[1]]
+                    if the_point.sign == 0:
+                        self.recursive_un_hide(pts[0], pts[1], 0)
+                    if not the_point.flag and not the_point.question:
+                        self._field[pts[0]][pts[1]].hide = False
 
-
-        checked = [ch for ch in self.get_points_list(w, h) if self._field[ch[0]][ch[1]].flag != 'None' and self._field[ch[0]][ch[1]].hide]
-
-
-        for pts in self.get_points_list(w, h):
-            if self._field[pts[0]][pts[1]].flag == Point.flags[0] and self._field[pts[0]][pts[1]].sign == 9:
-                self._field[pts[0]][pts[1]].hide = False
+            if self.boom:
                 print("CA-BOOM!")
                 print("CA-BOoOOoOOoM!!!")
                 print("CA-BOOoOoOOOOOOoOOOoOoOM!!!!!!!!!!")
-                print(f"██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░███████╗██╗░░██╗██████╗░██╗░░░░░░█████╗░██████╗░███████╗██████╗░\n"
-                      f"╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░██╔════╝╚██╗██╔╝██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔════╝██╔══██╗\n"
-                      f"░╚████╔╝░██║░░██║██║░░░██║░░░░░░█████╗░░░╚███╔╝░██████╔╝██║░░░░░██║░░██║██║░░██║█████╗░░██║░░██║\n"
-                      f"░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░██╔══╝░░░██╔██╗░██╔═══╝░██║░░░░░██║░░██║██║░░██║██╔══╝░░██║░░██║\n"
-                      f"░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░███████╗██╔╝╚██╗██║░░░░░███████╗╚█████╔╝██████╔╝███████╗██████╔╝\n"
-                      f"░░░╚═╝░░░░╚════╝░░╚═════╝░░░░░░░╚══════╝╚═╝░░╚═╝╚═╝░░░░░╚══════╝░╚════╝░╚═════╝░╚══════╝╚═════╝░"
-                      )
-            elif self._field[pts[0]][pts[1]].flag == Point.flags[0]:
+                print("██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░███████╗██╗░░██╗██████╗░██╗░░░░░░█████╗░██████╗░███████╗██████╗░\n"
+                      "╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░██╔════╝╚██╗██╔╝██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔════╝██╔══██╗\n"
+                      "░╚████╔╝░██║░░██║██║░░░██║░░░░░░█████╗░░░╚███╔╝░██████╔╝██║░░░░░██║░░██║██║░░██║█████╗░░██║░░██║\n"
+                      "░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░██╔══╝░░░██╔██╗░██╔═══╝░██║░░░░░██║░░██║██║░░██║██╔══╝░░██║░░██║\n"
+                      "░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░███████╗██╔╝╚██╗██║░░░░░███████╗╚█████╔╝██████╔╝███████╗██████╔╝\n")
+                # self.boom = True
 
-                if self._field[pts[0]][pts[1]].sign == 0:
-                    self.recursive_un_hide(pts[0],pts[1], 0)
 
-                self._field[pts[0]][pts[1]].hide = False
 
     def set_flag(self, w, h):
         # Прямо дофига очевидно, что делает. На самом деле просто флаг переключает.
-        # self._field[w][h].flag смещается по tuple флагов, переключение на следующее или нулевое значение
-        #
-        self._field[w][h].check_flag(False)
 
+        self._field[w][h].check_flag(False)
 
     def __str__(self):
         field = ''
@@ -227,7 +241,6 @@ class Mines:
 
             for j in range(0, self._width):
                 field += f"{self._field[j][i].sign} "
-                # print(f"{self.__field[i][j]}", sep=' ')
             else:
                 field += f"\n"
                 # print(f"\n")
@@ -244,7 +257,9 @@ class Mines:
             w = index % self._width
             h = index // self._width
 
-            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
+            return w, h, self._field[w][h]
+            # return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
+            #
         else:
             raise IndexError(f"Index out of a range (0 <= {index} < {self._height * self._width}")
 
@@ -260,7 +275,8 @@ class Mines:
 
             # return w, h, self._field[w][h]
 
-            return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
+            return w, h, self._field[w][h]
+            # return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
         else:
             raise StopIteration
 

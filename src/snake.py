@@ -54,12 +54,19 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_w:
                 snake_dir = (0, -TILE_SIZE)
+                pg.display.set_caption("Snake: UP")
             if event.key == pg.K_s:
                 snake_dir = (0, TILE_SIZE)
+                pg.display.set_caption("Snake: DOWN")
             if event.key == pg.K_a:
                 snake_dir = (-TILE_SIZE, 0)
+                pg.display.set_caption("Snake: LEFT")
             if event.key == pg.K_d:
                 snake_dir = (TILE_SIZE, 0)
+                pg.display.set_caption("Snake: RIGHT")
+            if event.key == pg.K_SPACE:
+                time_step = 108
+                pg.display.set_caption("Snake: bullettime... ")
 
     # Управляем змейкой
     time_now = pg.time.get_ticks()
@@ -73,6 +80,7 @@ while True:
         # Поедание
         if snake.center == food.center:
             food.center = get_random_position()
+            pg.display.set_caption("Shake: OM-NOM-NOM!")
             length += 1
             time_step -=1
 
