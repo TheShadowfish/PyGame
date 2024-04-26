@@ -68,15 +68,18 @@ class Mines:
         self._width = width
         self.mines = mines
         self._field = []
-        self._game_result = None
+
+        self.game_over = False
+        self.boom = False
+        self.boom_pts = None
+
+        # self._game_result = None
 
         for i in range(0, self._height):
             pts = []
             for j in range(0, self._width):
                 pts.append(Point())
             self._field.append(copy.deepcopy(pts))
-
-        # self.__field = [[0] * self.__width] * self.__height
 
         h_rand = randrange(0, self._height)
         w_rand = randrange(0, self._width)
@@ -88,18 +91,13 @@ class Mines:
             if self._field[w_rand][h_rand].sign != 9:
                 self._field[w_rand][h_rand].sign = 9
                 self.mines -= 1
-                # self.__field[w_rand][h_rand]['class'] = 9
-            # print(
-            #     f"mines {self.mines}, h_rand {h_rand}, w_rand {w_rand} self.__field[w][h]['class'] {self._field[w_rand][h_rand].sign}")
 
         for h in range(0, self._height):
             for w in range(0, self._width):
                 if self._field[w][h].sign != 9:
                     self._field[w][h].sign = self.get_sign(w, h)
 
-        #
-        # self.boom = False
-        # self.boom_pts = None
+
 
     def get_sign(self, w, h):
         """
@@ -124,19 +122,11 @@ class Mines:
         for i in range(w0, w2):
             for j in range(h0, h2):
                 if self._field[i][j].sign == 9:
-                    # print(f"field(i,j) ({i},{j}) sign= {self._field[i][j].sign}")
                     count2 += 1
-                # field += 1
-        # print(f"field(9) {field}")
 
         for i in self.get_points_list(w, h):
-            # print(f"{i}, {[str(iel) for iel in i]} {self._field[i[0]][i[1]].sign}")
             if self._field[i[0]][i[1]].sign == 9:
-                # print(f"field(w, h) ({i[0]},{i[1]}) sign= {self._field[i[0]][i[1]].sign}")
                 count += 1
-
-        # print(f"count= {count}, count2= {count2}")
-        # input("See///")
 
         assert count == count2
 
@@ -144,7 +134,7 @@ class Mines:
 
     def get_points_list(self, w, h):
         """
-        Возвращает список сопутствующих ячеек
+        Возвращает список прилегающих ячеек (pts)
         :param w:
         :param h:
         :return:
@@ -159,20 +149,12 @@ class Mines:
         if h2 > self._height: h2 = self._height
 
         point_list = []
-
-        # count = 0
-        field = 0
         for i in range(w0, w2):
             for j in range(h0, h2):
                 if not(i == w and j == h):
                     point_list.append((i, j))
-                # count += 1
-                # field += 1
-        # print(f"field(9) {field}")
         return point_list
 
-    # def un_hide(self, w, h):
-    #     self._field[w][h].hide = False
 
     def recursive_un_hide(self, w, h, depth = 0):
         if self._field[w][h].hide:
@@ -180,6 +162,7 @@ class Mines:
             if self._field[w][h].sign == 9:
                 self.boom = True
                 self.boom_pts = (w, h)
+                self.game_over = True
             if self._field[w][h].sign == 0:
                 depth += 1
                 for pts in self.get_points_list(w, h):
@@ -205,6 +188,7 @@ class Mines:
             if not the_point.flag and not the_point.question and the_point.sign == 9:
                 self.boom = True
                 self.boom_pts = (pts[0], pts[1])
+                self.game_over = True
         else:
             # если закрыто меньше мин, чем предусмотрено - ничего не делаем
             if self._field[w][h].sign > sign_checked:
@@ -217,26 +201,6 @@ class Mines:
                         self.recursive_un_hide(pts[0], pts[1], 0)
                     if not the_point.flag and not the_point.question:
                         self._field[pts[0]][pts[1]].hide = False
-
-            # if self.boom:
-            #     print("CA-BOOM!")
-            #     print("CA-BOoOOoOOoM!!!")
-            #     print("CA-BOOoOoOOOOOOoOOOoOoOM!!!!!!!!!!")
-            #     print("██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░███████╗██╗░░██╗██████╗░██╗░░░░░░█████╗░██████╗░███████╗██████╗░\n"
-            #           "╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░██╔════╝╚██╗██╔╝██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔════╝██╔══██╗\n"
-            #           "░╚████╔╝░██║░░██║██║░░░██║░░░░░░█████╗░░░╚███╔╝░██████╔╝██║░░░░░██║░░██║██║░░██║█████╗░░██║░░██║\n"
-            #           "░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░██╔══╝░░░██╔██╗░██╔═══╝░██║░░░░░██║░░██║██║░░██║██╔══╝░░██║░░██║\n"
-            #           "░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░███████╗██╔╝╚██╗██║░░░░░███████╗╚█████╔╝██████╔╝███████╗██████╔╝\n")
-            #     # self.boom = True
-
-    # @staticmethod
-    # def check_end_game(ms) -> bool:
-    #     mines = [pt[2] for pt in ms if pt[2].sign == 9]
-    #     print(f"{len(mines)} <> {sum([pt[2].hide for pt in ms if pt[2].hide])}")
-    #
-    #
-    #     return ms.mines == sum([pt[2].hide for pt in ms if pt[2].hide])
-
 
 
     def set_flag(self, w, h):
@@ -252,7 +216,6 @@ class Mines:
                 field += f"{self._field[j][i].sign} "
             else:
                 field += f"\n"
-                # print(f"\n")
         return field
 
     def __iter__(self):
@@ -268,7 +231,7 @@ class Mines:
 
             return w, h, self._field[w][h]
             # return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
-            #
+
         else:
             raise IndexError(f"Index out of a range (0 <= {index} < {self._height * self._width}")
 
@@ -290,24 +253,28 @@ class Mines:
             raise StopIteration
 
     def stop_game(self):
-        if self._game_result is not None:
-            print(f"GAME END! (294) result= {self._game_result}")
-            return self._game_result
+        """
+        Проверка на выигрышЖ не должно быть скрытых безопасных полей
+        """
 
-        for pt in self._field:
-            # Если мина открыта - она взорвалась, значит всё. Совсем всё.
-            if pt[2].sign == 9 and pt[2].hide == False:
-                self._game_result = False
-                # return self._game_result
-                break
-            # Если не открыто поле без мины, то игра продолжается
-            if pt[2].sign != 9 and pt[2].hide == True:
-                self._game_result = None
-                break
-        # взорвавшихся мин нет, скрытых полей нет
+        if self.game_over:
+            print(f"GAME END! (294) game_over= {self.game_over}, boom= {self.boom}")
+            return False
+
         else:
-            self._game_result = True
-        return self._game_result
+            for pt in self._field:
+            # Если мина открыта - она взорвалась, значит всё. Совсем всё.
+                if pt[2].sign == 9 and pt[2].hide == False:
+                    self._game_result = False
+                    # return self._game_result
+                    print(f"Невозможная ситуация: взрыв мины не завершил игру ранее.")
+                # Если не открыто поле без мины, то игра продолжается
+                if pt[2].sign != 9 and pt[2].hide == True:
+                    return False
+            # взорвавшихся мин нет, скрытых полей нет
+            else:
+                self.game_over = True
+                return True
 
 
 
