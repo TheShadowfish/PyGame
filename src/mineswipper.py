@@ -59,6 +59,7 @@ while True:
     # Цикл обработки событий
     for event in pg.event.get():
         # pg.display.set_caption(str(event))
+        my_ms.stop_game()
 
         if event.type == pg.QUIT:
             exit()
@@ -74,17 +75,26 @@ while True:
             w: int = mouse_pos[0] // TILE_SIZE
             h: int = mouse_pos[1] // TILE_SIZE
 
-            if my_ms.boom:
-                print("CA-BOOM!")
-                print("CA-BOoOOoOOoM!!!")
-                print("CA-BOOoOoOOOOOOoOOOoOoOM!!!!!!!!!!")
-                print(
+            if my_ms._game_result is not None:
+                if my_ms._game_result == False:
+
+                    print("CA-BOOM!   CA-BOoOOoOOoM!!!      CA-BOOoOoOOOOOOoOOOoOoOM!!!!!!!!!!")
+                    print(
                     "██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░███████╗██╗░░██╗██████╗░██╗░░░░░░█████╗░██████╗░███████╗██████╗░\n"
                     "╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░██╔════╝╚██╗██╔╝██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔════╝██╔══██╗\n"
                     "░╚████╔╝░██║░░██║██║░░░██║░░░░░░█████╗░░░╚███╔╝░██████╔╝██║░░░░░██║░░██║██║░░██║█████╗░░██║░░██║\n"
                     "░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░██╔══╝░░░██╔██╗░██╔═══╝░██║░░░░░██║░░██║██║░░██║██╔══╝░░██║░░██║\n"
                     "░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░███████╗██╔╝╚██╗██║░░░░░███████╗╚█████╔╝██████╔╝███████╗██████╔╝\n")
                 # self.boom = True
+                else:
+                    print("""
+                    "██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░██╗░░░░░░░░░░░░██╗░░██╗░░██╗░░░██╗░░░░██║\n"
+                    "╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░╚██╗░░░███░░░░██╔╝░░██║░░████╗░██║░░░░██║\n"
+                    "░╚████╔╝░██║░░██║██║░░░██║░░░░░░░╚██░░██╔██░░██╔╝░░░██║░░██║██╗██║░░░░██║\n"
+                    "░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░░░╚████╔╝╚████╔╝░░░░██║░░██║░████║░░░░░╚╝\n"
+                    "░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░░░░╚██╔╝░░╚██╔╝░░░░░██║░░██║░░░██║░░░░██╗\n")
+                    
+                    """)
             else:
 
                 if mouse_btn == 3:
@@ -96,10 +106,16 @@ while True:
                     # my_ms.un_hide(w, h)
                     my_ms.recursive_un_hide(w, h)
 
-            if mouse_btn != 3 and Mines.check_end_game(my_ms):
-                print("U ARE WWWWIN!")
-                mines = [pt[2] for pt in my_ms if pt[2].sign == 9]
-                pg.display.set_caption(f"WINNER!!! Minesweeper: timer: {str(global_time)}, mines: {len(mines)}")
+                gamestatus = my_ms.stop_game()
+
+                if gamestatus is not None:
+                    if gamestatus == True:
+                        print("U ARE WWWWIN!")
+                        mines = [pt[2] for pt in my_ms if pt[2].sign == 9]
+                        pg.display.set_caption(f"WINNER!!! Minesweeper: timer: {str(global_time)}, mines: {len(mines)}")
+                    else:
+                        print(f"G A M E   O V E R !!!")
+
 
             # print(f"x, y = {w}, {h}")
 
@@ -117,7 +133,8 @@ while True:
     if time_now - time > time_step:
         time = time_now
         # if not my_ms.boom and Mines.check_end_game(my_ms):
-        global_time += 1
+        if  my_ms._game_result is None:
+            global_time += 1
 
 
         # отрисовать поле
@@ -140,7 +157,7 @@ while True:
                     text_sign = f1.render('?', True, "blue")  # ∆
                     place = text_sign.get_rect(center=point.center)
                     gameScreen.blit(text_sign, place)
-                elif my_ms.boom:
+                elif my_ms._game_result == False:
                     if the_point.sign == 9:
                         pg.draw.rect(gameScreen, "black", point)
 

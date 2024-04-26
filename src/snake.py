@@ -1,5 +1,5 @@
-import pygame as pg
 from random import randrange
+import pygame as pg
 
 # Константы
 WINDOW = 900

@@ -68,6 +68,7 @@ class Mines:
         self._width = width
         self.mines = mines
         self._field = []
+        self._game_result = None
 
         for i in range(0, self._height):
             pts = []
@@ -96,9 +97,9 @@ class Mines:
                 if self._field[w][h].sign != 9:
                     self._field[w][h].sign = self.get_sign(w, h)
 
-
-        self.boom = False
-        self.boom_pts = None
+        #
+        # self.boom = False
+        # self.boom_pts = None
 
     def get_sign(self, w, h):
         """
@@ -228,13 +229,13 @@ class Mines:
             #           "░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░███████╗██╔╝╚██╗██║░░░░░███████╗╚█████╔╝██████╔╝███████╗██████╔╝\n")
             #     # self.boom = True
 
-    @staticmethod
-    def check_end_game(ms) -> bool:
-        mines = [pt[2] for pt in ms if pt[2].sign == 9]
-        print(f"{len(mines)} <> {sum([pt[2].hide for pt in ms if pt[2].hide])}")
-
-
-        return ms.mines == sum([pt[2].hide for pt in ms if pt[2].hide])
+    # @staticmethod
+    # def check_end_game(ms) -> bool:
+    #     mines = [pt[2] for pt in ms if pt[2].sign == 9]
+    #     print(f"{len(mines)} <> {sum([pt[2].hide for pt in ms if pt[2].hide])}")
+    #
+    #
+    #     return ms.mines == sum([pt[2].hide for pt in ms if pt[2].hide])
 
 
 
@@ -287,6 +288,31 @@ class Mines:
             # return w, h, self._field[w][h].color, self._field[w][h].sign, self._field[w][h].hide, self._field[w][h].flag
         else:
             raise StopIteration
+
+    def stop_game(self):
+        if self._game_result is not None:
+            print(f"GAME END! (294) result= {self._game_result}")
+            return self._game_result
+
+        for pt in self._field:
+            # Если мина открыта - она взорвалась, значит всё. Совсем всё.
+            if pt[2].sign == 9 and pt[2].hide == False:
+                self._game_result = False
+                # return self._game_result
+                break
+            # Если не открыто поле без мины, то игра продолжается
+            if pt[2].sign != 9 and pt[2].hide == True:
+                self._game_result = None
+                break
+        # взорвавшихся мин нет, скрытых полей нет
+        else:
+            self._game_result = True
+        return self._game_result
+
+
+
+
+
 
 #
 # WINDOW = 900
